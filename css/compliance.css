@@ -73,9 +73,10 @@ body {
 /* ---------- Cards de framework ---------- */
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
 }
+.card .sub { color: var(--muted); font-size: 11px; margin-top: 8px; }
 .card {
   background: var(--card-bg);
   border-radius: 4px;
@@ -165,7 +166,6 @@ body {
   .brand { margin-bottom: 8px; }
   .sidebar nav { flex-direction: row; flex-wrap: wrap; }
   .content { padding: 20px 16px; }
-  .cards { grid-template-columns: 1fr; }
   .export { flex-direction: column; align-items: flex-start; }
 }
 

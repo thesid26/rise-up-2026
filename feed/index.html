@@ -72,6 +72,7 @@
               <th scope="col">Evento</th>
               <th scope="col">Origem</th>
               <th scope="col">Severidade</th>
+              <th scope="col">Recomendação</th>
             </tr>
           </thead>
           <tbody id="corpo"></tbody>
@@ -81,15 +82,50 @@
 
     <footer class="rodape">
       <div class="rodape-in">
-        <span>SecView · monitoramento de segurança</span>
+        <span>SecView · centralizador de eventos</span>
         <span id="limite"></span>
       </div>
     </footer>
   </div>
 
 </div>
+
+<!-- Painel de recomendação (aberto pelo botão de cada alerta) -->
+<dialog class="rec" id="rec" aria-labelledby="rec-titulo">
+  <div class="rec-corpo">
+    <header class="rec-cab">
+      <div>
+        <p class="rec-sup">Recomendação do SecView</p>
+        <h2 id="rec-titulo"></h2>
+        <p class="rec-meta" id="rec-meta"></p>
+      </div>
+      <button type="button" class="rec-fechar" id="rec-fechar" aria-label="Fechar recomendação">×</button>
+    </header>
+
+    <p class="rec-prior" id="rec-prior"></p>
+
+    <section>
+      <h3>O que aconteceu</h3>
+      <p id="rec-oque"></p>
+    </section>
+
+    <section>
+      <h3>O que fazer <span class="rec-prog" id="rec-prog"></span></h3>
+      <ol class="rec-acoes" id="rec-acoes"></ol>
+    </section>
+
+    <section class="rec-refs" id="rec-refs"></section>
+
+    <footer class="rec-rodape">
+      <a class="rec-link" href="../mitre.html">Ver no MITRE ATT&amp;CK</a>
+      <a class="rec-link" href="../compliance.html">Ver no Compliance PCI-DSS</a>
+      <button type="button" class="botao" id="rec-ok">Fechar</button>
+    </footer>
+  </div>
+</dialog>
 <script src="../js/dados.js"></script>
 <script src="../js/nav.js"></script>
+<script src="../js/recomendacoes.js"></script>
 <script src="feed.js"></script>
 </body>
 </html>

@@ -8,14 +8,40 @@ window.SecViewDados = (() => {
   // Rótulos de severidade (chave usada em todas as telas → texto exibido)
   const SEVERIDADES = { critico: "Crítico", alto: "Alto", medio: "Médio", info: "Info" };
 
-  // Aderência simulada por framework. "destaque" = aparece nos cards da tela de Compliance.
+  // PCI-DSS v4.0 (simulado): 12 requisitos agrupados nos 6 objetivos oficiais.
+  // atendidos/total = controles do requisito. Para trocar os números, edite aqui.
+  const PCI = {
+    versao: "4.0",
+    objetivos: [
+      { id: 1, nome: "Construir e manter redes e sistemas seguros", curto: "Rede e sistemas seguros", reqs: [1, 2] },
+      { id: 2, nome: "Proteger os dados da conta", curto: "Proteção de dados", reqs: [3, 4] },
+      { id: 3, nome: "Manter um programa de gestão de vulnerabilidades", curto: "Gestão de vulnerabilidades", reqs: [5, 6] },
+      { id: 4, nome: "Implementar medidas rigorosas de controle de acesso", curto: "Controle de acesso", reqs: [7, 8, 9] },
+      { id: 5, nome: "Monitorar e testar redes regularmente", curto: "Monitoramento e testes", reqs: [10, 11] },
+      { id: 6, nome: "Manter uma política de segurança da informação", curto: "Política de segurança", reqs: [12] },
+    ],
+    requisitos: [
+      { n: 1,  nome: "Instalar e manter controles de segurança de rede",       atendidos: 5, total: 6 },
+      { n: 2,  nome: "Aplicar configurações seguras a todos os componentes",   atendidos: 4, total: 4 },
+      { n: 3,  nome: "Proteger os dados de conta armazenados",                 atendidos: 6, total: 7 },
+      { n: 4,  nome: "Proteger dados do titular com criptografia na transmissão", atendidos: 3, total: 3 },
+      { n: 5,  nome: "Proteger sistemas e redes contra software malicioso",    atendidos: 4, total: 4 },
+      { n: 6,  nome: "Desenvolver e manter sistemas e software seguros",       atendidos: 5, total: 6 },
+      { n: 7,  nome: "Restringir o acesso por necessidade de conhecimento",    atendidos: 3, total: 3 },
+      { n: 8,  nome: "Identificar usuários e autenticar o acesso",             atendidos: 6, total: 8 },
+      { n: 9,  nome: "Restringir o acesso físico aos dados do titular",        atendidos: 5, total: 5 },
+      { n: 10, nome: "Registrar e monitorar todo acesso a componentes e dados", atendidos: 5, total: 6 },
+      { n: 11, nome: "Testar a segurança de sistemas e redes regularmente",    atendidos: 3, total: 5 },
+      { n: 12, nome: "Apoiar a segurança da informação com políticas e programas", atendidos: 3, total: 3 },
+    ],
+  };
+
+  // Aderência geral derivada dos requisitos (52 de 60 controles = 87%).
+  // O compliance do projeto é o PCI-DSS; outros frameworks entram como novos itens aqui.
+  const pciAtendidos = PCI.requisitos.reduce((a, r) => a + r.atendidos, 0);
+  const pciTotal = PCI.requisitos.reduce((a, r) => a + r.total, 0);
   const FRAMEWORKS = [
-    { nome: "PCI-DSS",   valor: 87, atendidos: 52, total: 60,  destaque: true },
-    { nome: "GDPR",      valor: 62, atendidos: 31, total: 50,  destaque: true },
-    { nome: "HIPAA",     valor: 94, atendidos: 47, total: 50,  destaque: true },
-    { nome: "ISO 27001", valor: 78, atendidos: 89, total: 114, destaque: false },
-    { nome: "NIST CSF",  valor: 71, atendidos: 77, total: 108, destaque: false },
-    { nome: "SOC 2",     valor: 83, atendidos: 53, total: 64,  destaque: false },
+    { nome: "PCI-DSS", valor: Math.round((pciAtendidos / pciTotal) * 100), atendidos: pciAtendidos, total: pciTotal, destaque: true },
   ];
 
   // Hosts monitorados (os mesmos que aparecem nos eventos do feed e do compliance).
@@ -69,5 +95,5 @@ window.SecViewDados = (() => {
     { dia: 23, categoria: "Sistema", origem: "host-db-01",  descricao: "PowerShell executado",                severidade: "medio" },
   ];
 
-  return { SEVERIDADES, FRAMEWORKS, HOSTS, EVENTOS };
+  return { SEVERIDADES, FRAMEWORKS, PCI, HOSTS, EVENTOS };
 })();

@@ -18,7 +18,7 @@
     { id: "fim",       texto: "FIM",             icone: "▤", href: null },
     { id: "regras",    texto: "Regras custom",   icone: "≡", href: null },
     { id: "compliance",texto: "Compliance",      icone: "▥", href: "compliance.html" },
-    { id: "mitre",     texto: "MITRE ATT&CK",    icone: "◈", href: null },
+    { id: "mitre",     texto: "MITRE ATT&CK",    icone: "◈", href: "mitre.html" },
     { id: "config",    texto: "Configurações",   icone: "⚙", href: null },
   ];
 
