@@ -4,18 +4,17 @@
    ========================================================== */
 
 :root {
-  --navy: #232c6e;          /* títulos, botão, ícones */
-  --navy-escuro: #161c4f;   /* fundo da página no desktop */
-  --navy-hover: #1a2158;
-  --periwinkle: #c5ccff;    /* círculo do avatar */
-  --label: #4a55d6;         /* rótulos dos campos */
-  --borda: #d3d7e8;
-  --placeholder: #7b809a;
-  --texto: #1f2447;
-  --erro: #d33f49;
-  --erro-fundo: #fdecee;
-  --ok: #1e9e5a;
-  --ok-fundo: #e8f7ef;
+  --navy: var(--tinta);
+  --navy-escuro: var(--tinta);
+  --navy-hover: var(--tinta-clara);
+  --periwinkle: var(--destaque-fundo);
+  --label: var(--destaque);
+  --borda: var(--linha);
+  --placeholder: var(--suave);
+  --erro: var(--critico);
+  --erro-fundo: var(--critico-fundo);
+  --ok: var(--sucesso);
+  --ok-fundo: var(--sucesso-fundo);
   --branco: #ffffff;
 
   --fonte: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -109,16 +108,16 @@ body {
 
 .entrada input::placeholder { color: var(--placeholder); }
 
-.entrada input:hover:not(:disabled) { border-color: #aab0d0; }
+.entrada input:hover:not(:disabled) { border-color: var(--linha-forte); }
 
 .entrada input:focus {
   outline: none;
   border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(74, 85, 214, 0.22);
+  box-shadow: 0 0 0 3px rgba(11, 110, 110, 0.22);
 }
 
 .entrada input:disabled {
-  background: #f2f3f8;
+  background: var(--faixa);
   color: var(--placeholder);
   cursor: not-allowed;
 }
@@ -128,7 +127,7 @@ body {
 }
 
 .campo.invalido input:focus {
-  box-shadow: 0 0 0 3px rgba(211, 63, 73, 0.2);
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.2);
 }
 
 .msg-campo {
@@ -205,7 +204,7 @@ body {
 .botao:active:not(:disabled) { transform: translateY(1px); }
 
 .botao:focus-visible {
-  outline: 3px solid var(--periwinkle);
+  outline: 3px solid var(--destaque-claro);
   outline-offset: 2px;
 }
 
@@ -246,14 +245,14 @@ body {
 /* Última tentativa antes do bloqueio: mais destaque */
 .alerta--critico {
   border-left: 4px solid var(--erro);
-  background: #fbe0e3;
+  background: var(--critico-fundo-forte);
 }
 
 .alerta--critico span { font-weight: 600; }
 
 .alerta--ok {
   background: var(--ok-fundo);
-  color: #157a45;
+  color: var(--sucesso-texto);
 }
 
 /* ---------- Links ---------- */
@@ -435,11 +434,11 @@ body {
 
 .btn-social:hover:not(:disabled) {
   border-color: var(--navy);
-  background: #f5f6fd;
+  background: var(--faixa);
 }
 
 .btn-social:focus-visible {
-  outline: 3px solid var(--periwinkle);
+  outline: 3px solid var(--destaque-claro);
   outline-offset: 2px;
 }
 
