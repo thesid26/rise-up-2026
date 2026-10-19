@@ -1,6 +1,5 @@
-// Paleta (extraída do gradient set de referência)
-const NAVY = '#1c229a', INDIGO = '#4352c7', BLUE = '#2968ec', SKY = '#0ca0d8',
-    VIOLET = '#6844fc', DEEP = '#1b1464', GRID = '#e3e9f6';
+// Paleta padrão (mesma do Feed de alertas e de css/cores.css)
+const DESTAQUE = '#0b6e6e', ALTO = '#c75b00', GRID = '#d9e0e7';
 
 const horas = ['00h', '04h', '08h', '12h', '16h', '20h'];
 const alertas = [320, 410, 690, 540, 820, 670];
@@ -10,7 +9,7 @@ const categorias = [
     ['Brute force', 420], ['Malware', 380], ['Phishing', 310], ['Escalação de privilégio', 260],
     ['Tráfego anômalo', 210], ['Alteração de arquivo', 180], ['Exfiltração', 140], ['Evasão de defesa', 120]
 ];
-const tons = ['#1b1464', '#2934aa', '#4352c7', '#6844fc', '#2968ec', '#3676fa', '#0ca0d8', '#5fc3ea'];
+const tons = ['#12202e', '#1d3346', '#0b4f4f', '#0b6e6e', '#2f8c8c', '#4fc3c3', '#5d6b7a', '#9aa8b6'];
 
 // Abertos vs. resolvidos por categoria (abertos + resolvidos = total da categoria acima)
 const abertosResolvidos = [
@@ -24,7 +23,7 @@ const abertosResolvidos = [
     ['Evasão de defesa', 75, 45]
 ];
 
-const severidade = [['#dc2626', 13], ['#d97706', 22], ['#8fa3c9', 65]];
+const severidade = [['#c62828', 13], ['#d4a900', 22], ['#7b848f', 65]];
 
 // Dados compartilhados com Feed e Compliance (js/dados.js)
 const DADOS = window.SecViewDados;
@@ -73,8 +72,8 @@ function barrasV(el, dados) {
     const base = H - p.b;
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Alertas abertos e resolvidos por categoria de ameaça">
     <defs>
-      <linearGradient id="gOpen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6844fc"/><stop offset="1" stop-color="#1b1464"/></linearGradient>
-      <linearGradient id="gRes" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0ca0d8"/><stop offset="1" stop-color="#192977"/></linearGradient>
+      <linearGradient id="gOpen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa8b6"/><stop offset="1" stop-color="#5d6b7a"/></linearGradient>
+      <linearGradient id="gRes" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fc3c3"/><stop offset="1" stop-color="#0b6e6e"/></linearGradient>
     </defs>`;
     for (let g = 0; g <= 5; g++) {
         const v = topo * g / 5, yy = base - alt(v);
@@ -109,21 +108,21 @@ function rosca(el, partes) {
 // Conformidade por framework: barra + % + controles atendidos + status
 function conformidadeLista(el, dados) {
     const faixa = v => v >= 80
-        ? { cls: 'ok', grad: 'linear-gradient(90deg,#0ca0d8,#2968ec)', txt: 'Conforme' }
+        ? { cls: 'ok', cor: '#1f9d55', txt: 'Conforme' }
         : v >= 60
-            ? { cls: 'warn', grad: 'linear-gradient(90deg,#4352c7,#2934aa)', txt: 'Atenção' }
-            : { cls: 'bad', grad: 'linear-gradient(90deg,#6844fc,#1b1464)', txt: 'Revisar' };
+            ? { cls: 'warn', cor: '#c75b00', txt: 'Atenção' }
+            : { cls: 'bad', cor: '#c62828', txt: 'Revisar' };
     el.innerHTML = dados.map(([nome, pct, ok, total]) => {
         const f = faixa(pct);
         return `<div class="cf">
       <div class="cf-top"><span class="cf-n">${nome}</span><span class="tag ${f.cls}">${f.txt}</span><em>${pct}%</em></div>
-      <i class="cf-bar"><b style="width:${pct}%;background:${f.grad}"></b></i>
+      <i class="cf-bar"><b style="width:${pct}%;background:${f.cor}"></b></i>
       <small>${ok} de ${total} controles atendidos · ${total - ok} pendentes</small>
     </div>`;
     }).join('');
 }
 
-linhas(document.getElementById('line'), horas, [{ d: alertas, c: NAVY }, { d: incidentes, c: VIOLET }]);
+linhas(document.getElementById('line'), horas, [{ d: alertas, c: DESTAQUE }, { d: incidentes, c: ALTO }]);
 barrasH(document.getElementById('hbars'), categorias, tons);
 barrasV(document.getElementById('vbars'), abertosResolvidos);
 const totAb = abertosResolvidos.reduce((a, d) => a + d[1], 0), totRe = abertosResolvidos.reduce((a, d) => a + d[2], 0);

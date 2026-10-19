@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dashboard — SecView</title>
+<link rel="stylesheet" href="css/cores.css">
 <link rel="stylesheet" href="css/dashboard.css">
 <link rel="stylesheet" href="css/nav.css">
 <script src="js/comum.js"></script>
@@ -33,7 +34,7 @@
     <section class="grid">
       <div class="card">
         <div class="hd"><div><h2>Alertas e incidentes</h2><p class="sub">Últimas 24h, em intervalos de 4h</p></div>
-          <div class="lg"><span><i style="background:#1c229a"></i>Alertas</span><span><i style="background:#6844fc"></i>Incidentes confirmados</span></div></div>
+          <div class="lg"><span><i style="background:var(--destaque)"></i>Alertas</span><span><i style="background:var(--alto)"></i>Incidentes confirmados</span></div></div>
         <div id="line"></div>
       </div>
       <div class="card"><h2>Alertas por categoria</h2><p class="sub">Top 8 categorias de ameaça</p><div id="hbars"></div></div>
@@ -49,14 +50,14 @@
       <div class="card">
         <h2>Severidade e hosts</h2><p class="sub">Distribuição dos alertas e alvos mais frequentes</p>
         <div class="donut"><div class="wrap"><div id="donut"></div><div class="mid"><b>2.847</b>alertas</div></div>
-          <ul><li><i style="background:#dc2626"></i>Crítico (13%)</li><li><i style="background:#d97706"></i>Médio (22%)</li><li><i style="background:#8fa3c9"></i>Baixo / Info (65%)</li></ul></div>
+          <ul><li><i style="background:var(--critico)"></i>Crítico (13%)</li><li><i style="background:var(--medio)"></i>Médio (22%)</li><li><i style="background:var(--info)"></i>Baixo / Info (65%)</li></ul></div>
         <div class="hosts" id="hosts"><h3>Hosts mais atacados</h3></div></div>
     </section>
  
     <section class="grid">
       <div class="card">
         <div class="hd"><div><h2>Conformidade por framework</h2><p class="sub">Aderência simulada · controles atendidos</p></div>
-          <div class="lg"><span><i style="background:#0ca0d8"></i>Conforme ≥ 80%</span><span><i style="background:#4352c7"></i>Atenção 60–79%</span><span><i style="background:#6844fc"></i>Revisar &lt; 60%</span></div></div>
+          <div class="lg"><span><i style="background:var(--sucesso)"></i>Conforme ≥ 80%</span><span><i style="background:var(--alto)"></i>Atenção 60–79%</span><span><i style="background:var(--critico)"></i>Revisar &lt; 60%</span></div></div>
         <div id="comp"></div>
       </div>
       <div class="card"><h2>Táticas MITRE ATT&amp;CK</h2><p class="sub">Alertas mapeados por tática</p>
