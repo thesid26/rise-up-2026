@@ -1,28 +1,18 @@
 /* ---------- Configuração ---------- */
-const SEVERIDADES = {
-  critico: "Crítico",
-  alto: "Alto",
-  medio: "Médio",
-  info: "Info",
-};
+// Severidades e eventos vêm de js/dados.js (compartilhado com Dashboard e Compliance)
+const SEVERIDADES = window.SecViewDados.SEVERIDADES;
 const MAX_EVENTOS = 100;   // limite do feed
 const INTERVALO_MS = 2500; // frequência da simulação
 
 /* ---------- Dados de exemplo ----------
+   Os modelos vêm dos eventos compartilhados (hosts e descrições iguais aos do Compliance).
    Troque gerarEvento() pela sua fonte real (fetch, WebSocket, SSE).
    Formato: { id, data: Date, evento, origem, severidade } */
-const MODELOS = [
-  { evento: "Falha de autenticação repetida", origem: "auth-service", severidade: "alto" },
-  { evento: "Banco de dados sem resposta", origem: "db-primario", severidade: "critico" },
-  { evento: "Uso de CPU acima de 90%", origem: "api-gateway", severidade: "medio" },
-  { evento: "Deploy concluído", origem: "ci-cd", severidade: "info" },
-  { evento: "Fila de mensagens acumulando", origem: "worker-pagamentos", severidade: "alto" },
-  { evento: "Certificado expira em 7 dias", origem: "proxy-borda", severidade: "medio" },
-  { evento: "Serviço indisponível", origem: "checkout", severidade: "critico" },
-  { evento: "Backup finalizado", origem: "storage", severidade: "info" },
-  { evento: "Latência acima do limite", origem: "api-gateway", severidade: "medio" },
-  { evento: "Disco com 95% de uso", origem: "db-replica", severidade: "alto" },
-];
+const MODELOS = window.SecViewDados.EVENTOS.map((e) => ({
+  evento: e.descricao,
+  origem: e.origem,
+  severidade: e.severidade,
+}));
 
 let contador = 0;
 function gerarEvento() {
@@ -38,6 +28,8 @@ let eventos = [];      // o mais novo fica na posição 0
 let pausado = false;
 let filtro = "todos";
 let timer = null;
+let pausadoPeloPainel = false; // o feed para enquanto a recomendação está aberta
+const feitas = new Map();       // id do alerta → ações já marcadas (só em memória)
 
 /* ---------- Elementos ---------- */
 const $ = (id) => document.getElementById(id);
@@ -46,6 +38,8 @@ const el = {
   total: $("total"), sevLista: $("sev-lista"), ultimo: $("ultimo"),
   ponto: $("ponto"), statusTxt: $("status-txt"), atual: $("atual"),
   filtro: $("filtro"), btnPausa: $("btn-pausa"), corpo: $("corpo"), limite: $("limite"),
+  rec: $("rec"), recTitulo: $("rec-titulo"), recMeta: $("rec-meta"), recPrior: $("rec-prior"),
+  recOque: $("rec-oque"), recAcoes: $("rec-acoes"), recProg: $("rec-prog"), recRefs: $("rec-refs"),
 };
 
 /* ---------- Utilitários ---------- */
@@ -107,7 +101,7 @@ function renderizar() {
   if (visiveis.length === 0) {
     const tr = criar("tr");
     const td = criar("td", "vazio", "Nenhum alerta com essa severidade. Escolha outro filtro para ver mais eventos.");
-    td.colSpan = 4;
+    td.colSpan = 5;
     tr.append(td);
     el.corpo.replaceChildren(tr);
     return;
@@ -118,11 +112,18 @@ function renderizar() {
       const tr = criar("tr", e.severidade === "critico" ? "linha-critica" : "");
       const tdSev = criar("td");
       tdSev.append(badge(e.severidade));
+      const tdRec = criar("td");
+      const btn = criar("button", `botao-rec${e.severidade === "critico" ? " destaque" : ""}`, "Ver recomendação");
+      btn.type = "button";
+      btn.dataset.id = e.id;
+      btn.setAttribute("aria-label", `Ver recomendação para ${e.evento} em ${e.origem}`);
+      tdRec.append(btn);
       tr.append(
         criar("td", "hora", formatarHora(e.data)),
         criar("td", "", e.evento),
         criar("td", "origem", e.origem),
-        tdSev
+        tdSev,
+        tdRec
       );
       return tr;
     })
@@ -145,8 +146,9 @@ function pararFeed() {
 function atualizarPausa() {
   el.btnPausa.textContent = pausado ? "Retomar" : "Pausar";
   el.btnPausa.setAttribute("aria-pressed", String(pausado));
-  el.statusTxt.textContent = pausado ? "Feed pausado" : "Ao vivo";
-  el.ponto.classList.toggle("parado", pausado);
+  const parado = pausado || pausadoPeloPainel;
+  el.statusTxt.textContent = parado ? "Feed pausado" : "Ao vivo";
+  el.ponto.classList.toggle("parado", parado);
 }
 
 /* ---------- Eventos de interface ---------- */
@@ -159,6 +161,95 @@ el.btnPausa.addEventListener("click", () => {
 el.filtro.addEventListener("change", () => {
   filtro = el.filtro.value;
   renderizar();
+});
+
+
+/* ---------- Painel de recomendação ---------- */
+let alertaAberto = null;
+
+function renderizarAcoes() {
+  const rec = window.SecViewRecomendacoes.para(alertaAberto);
+  const marcadas = feitas.get(alertaAberto.id) ?? new Set();
+
+  el.recAcoes.replaceChildren(
+    ...rec.acoes.map((texto, i) => {
+      const li = criar("li");
+      const rotulo = criar("label", marcadas.has(i) ? "feita" : "");
+      const caixa = document.createElement("input");
+      caixa.type = "checkbox";
+      caixa.checked = marcadas.has(i);
+      caixa.addEventListener("change", () => {
+        const atual = feitas.get(alertaAberto.id) ?? new Set();
+        caixa.checked ? atual.add(i) : atual.delete(i);
+        feitas.set(alertaAberto.id, atual);
+        renderizarAcoes();
+        el.recAcoes.querySelectorAll("input")[i]?.focus(); // o render recria a lista
+      });
+      rotulo.append(caixa, criar("span", "", texto));
+      li.append(rotulo);
+      return li;
+    })
+  );
+  el.recProg.textContent = `${marcadas.size} de ${rec.acoes.length} concluídas`;
+}
+
+function abrirRecomendacao(id) {
+  const alerta = eventos.find((e) => e.id === id);
+  if (!alerta) return;
+  alertaAberto = alerta;
+  const rec = window.SecViewRecomendacoes.para(alerta);
+
+  el.recTitulo.textContent = alerta.evento;
+  el.recMeta.replaceChildren(
+    badge(alerta.severidade),
+    document.createTextNode(` ${alerta.origem} · ${formatarHora(alerta.data)}`)
+  );
+  el.recPrior.textContent = `Prioridade: ${rec.prioridade}`;
+  el.recPrior.className = `rec-prior p-${alerta.severidade}`;
+  el.recOque.textContent = rec.oQue;
+
+  // referências (MITRE ATT&CK e PCI-DSS)
+  const refs = [];
+  if (rec.mitre) refs.push(criar("span", "chip", `MITRE ATT&CK · ${rec.mitre.id} ${rec.mitre.nome}`));
+  if (rec.pci) refs.push(criar("span", "chip", `PCI-DSS · Requisito ${rec.pci}`));
+  el.recRefs.replaceChildren(...refs);
+  el.recRefs.hidden = refs.length === 0;
+
+  renderizarAcoes();
+
+  // pausa o feed para a tabela não mudar por baixo do painel
+  if (!pausado && timer) {
+    pararFeed();
+    pausadoPeloPainel = true;
+    atualizarPausa();
+  }
+  el.rec.showModal();
+}
+
+function fecharRecomendacao() {
+  el.rec.close();
+}
+
+el.rec.addEventListener("close", () => {
+  alertaAberto = null;
+  if (pausadoPeloPainel) {
+    pausadoPeloPainel = false;
+    if (!pausado) iniciarFeed();
+    atualizarPausa();
+  }
+});
+
+// clique fora do painel fecha
+el.rec.addEventListener("click", (e) => {
+  if (e.target === el.rec) fecharRecomendacao();
+});
+$("rec-fechar").addEventListener("click", fecharRecomendacao);
+$("rec-ok").addEventListener("click", fecharRecomendacao);
+
+// botão "Ver recomendação" de cada linha
+el.corpo.addEventListener("click", (e) => {
+  const btn = e.target.closest(".botao-rec");
+  if (btn) abrirRecomendacao(Number(btn.dataset.id));
 });
 
 /* ---------- Início ---------- */
